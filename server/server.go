@@ -43,7 +43,7 @@ const (
 	HmNoRoute
 )
 
-var GoleVersion = "1.5.1"
+var GoleVersion = "1.5.2"
 var ApiPrefix = "/api"
 
 var engine *gin.Engine = nil
