@@ -192,6 +192,9 @@ func printVersionAndProfile() {
 }
 
 func Run() {
+	listener.AddListener(listener.EventOfServerRunFinish, func(event listener.GoleEvent) {
+		logger.Info("服务启动完成")
+	})
 	StartServer()
 }
 
