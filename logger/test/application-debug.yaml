@@ -10,7 +10,7 @@ gole:
     # 日志颜色配置
     color:
       # 启用：true/false，默认：false
-      enable: true
+      enable: false
     # 日志滚动策略
     rotate:
       # 日志滚动size；默认300MB

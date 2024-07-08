@@ -362,7 +362,7 @@ func (m *StandardFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		case logrus.PanicLevel:
 			levelColor = red
 		}
-		newLog = fmt.Sprintf("[%s] \x1b[%dm%s [%s]\x1b[0m [%s] [%v] \x1b[%dm%s\x1b[0m \x1b[%dm%s\x1b[0m %s %s\n",
+		newLog = fmt.Sprintf("[%s] \x1b[%dm%s [%s]\x1b[0m [%s] [%v] \x1b[%dm%s\x1b[0m \x1b[%dm%s\x1b[0m\n",
 			timestamp,
 			black,
 			os.Getenv("HOSTNAME"),
@@ -374,7 +374,7 @@ func (m *StandardFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 			entry.Message,
 			fieldsStr)
 	} else {
-		newLog = fmt.Sprintf("[%s] %s [%s] [%s] [%v] %s %s %s %s\n",
+		newLog = fmt.Sprintf("[%s] %s [%s] [%s] [%v] %s %s\n",
 			timestamp,
 			os.Getenv("HOSTNAME"),
 			config.GetValueStringDefault("gole.application.name", "gole"),
