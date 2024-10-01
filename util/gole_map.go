@@ -22,14 +22,15 @@ import (
 type GoleMap struct {
 	innerMap cmap.ConcurrentMap
 	sort     bool
-	keys     []string
+	// 内部有序keys
+	sortKeys []string
 }
 
 func NewGoleMap() *GoleMap {
 	return &GoleMap{
 		innerMap: cmap.New(),
 		sort:     false,
-		keys:     make([]string, 0),
+		sortKeys: make([]string, 0),
 	}
 }
 
@@ -37,7 +38,7 @@ func NewSortGoleMap() *GoleMap {
 	return &GoleMap{
 		innerMap: cmap.New(),
 		sort:     true,
-		keys:     make([]string, 0),
+		sortKeys: make([]string, 0),
 	}
 }
 
@@ -257,7 +258,7 @@ func (receiver *GoleMap) Keys() []string {
 		return nil
 	}
 	if receiver.sort {
-		return receiver.keys
+		return receiver.sortKeys
 	} else {
 		return receiver.innerMap.Keys()
 	}
@@ -272,9 +273,9 @@ func (receiver *GoleMap) SetSort(sort bool) *GoleMap {
 		return receiver
 	}
 	if !receiver.sort && sort {
-		receiver.keys = receiver.innerMap.Keys()
+		receiver.sortKeys = receiver.innerMap.Keys()
 	} else if receiver.sort && !sort {
-		receiver.keys = make([]string, 0)
+		receiver.sortKeys = make([]string, 0)
 	}
 	receiver.sort = sort
 	return receiver
@@ -315,7 +316,7 @@ func (receiver *GoleMap) Clone() *GoleMap {
 	cloneMap := &GoleMap{
 		innerMap: cmap.New(),
 		sort:     receiver.sort,
-		keys:     make([]string, 0),
+		sortKeys: make([]string, 0),
 	}
 	for _, key := range receiver.Keys() {
 		val, _ := receiver.Get(key)
@@ -335,7 +336,7 @@ func (receiver *GoleMap) AsDeepMap() *GoleMap {
 	deepMap := &GoleMap{
 		innerMap: cmap.New(),
 		sort:     false,
-		keys:     make([]string, 0),
+		sortKeys: make([]string, 0),
 	}
 	for key, val := range propertiesFromMap {
 		deepMap.Put(key, val)
@@ -352,7 +353,7 @@ func (receiver *GoleMap) Put(key string, value interface{}) *GoleMap {
 	}
 	receiver.innerMap.Set(key, value)
 	if receiver.sort {
-		receiver.keys = append(receiver.keys, key)
+		receiver.sortKeys = append(receiver.sortKeys, key)
 	}
 	return receiver
 }
@@ -362,8 +363,8 @@ func (receiver *GoleMap) PutAll(otherMap *GoleMap) *GoleMap {
 		return nil
 	}
 
-	for _, key := range otherMap.keys {
-		val, _ := receiver.Get(key)
+	for _, key := range otherMap.Keys() {
+		val, _ := otherMap.Get(key)
 		receiver.Put(key, val)
 	}
 	return receiver
@@ -684,8 +685,8 @@ func (receiver *GoleMap) Remove(key string) {
 	}
 	receiver.innerMap.Remove(key)
 	if receiver.sort {
-		id := IndexOf(receiver.keys, key)
-		receiver.keys = append(receiver.keys[:id], receiver.keys[id+1:]...)
+		id := IndexOf(receiver.sortKeys, key)
+		receiver.sortKeys = append(receiver.sortKeys[:id], receiver.sortKeys[id+1:]...)
 	}
 }
 func (receiver *GoleMap) RemoveAll() {
@@ -694,7 +695,7 @@ func (receiver *GoleMap) RemoveAll() {
 	}
 	receiver.innerMap.Clear()
 	if receiver.sort {
-		receiver.keys = make([]string, 0)
+		receiver.sortKeys = make([]string, 0)
 	}
 }
 func (receiver *GoleMap) Clear() {
@@ -703,7 +704,7 @@ func (receiver *GoleMap) Clear() {
 	}
 	receiver.innerMap.Clear()
 	if receiver.sort {
-		receiver.keys = make([]string, 0)
+		receiver.sortKeys = make([]string, 0)
 	}
 }
 func (receiver *GoleMap) Size() int {

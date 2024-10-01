@@ -593,3 +593,12 @@ func TestD(t *testing.T) {
 
 	fmt.Println(baseMap.ToJsonOfSort())
 }
+
+func TestPutAll(t *testing.T) {
+	dataMap := util.GoleMapOf("k1", 1, "k2", 2, "k3", 3)
+	fmt.Println(dataMap.Keys())
+	newDataMap := util.GoleMapOf()
+	fmt.Println(dataMap.Keys())
+	newDataMap.PutAll(dataMap)
+	fmt.Println(newDataMap.ToJson())
+}
