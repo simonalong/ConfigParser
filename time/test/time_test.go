@@ -47,6 +47,6 @@ func TestNumToTimeDuration(t *testing.T) {
 }
 
 func TestParseTime(t *testing.T) {
-	d := time.ParseTime("20220729")
+	d, _ := time.ParseTime("20220729")
 	fmt.Println(time.TimeToStringYmdHmsS(d))
 }

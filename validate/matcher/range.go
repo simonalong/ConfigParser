@@ -302,13 +302,13 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 			if begin == constants.Now {
 				beginNow = true
 			} else {
-				beginTime = time.ParseTime(begin)
+				beginTime, _ = time.ParseTime(begin)
 			}
 
 			if end == constants.Now {
 				endNow = true
 			} else {
-				endTime = time.ParseTime(end)
+				endTime, _ = time.ParseTime(end)
 			}
 
 			beginTimeIsEmpty := time.IsTimeEmpty(beginTime)

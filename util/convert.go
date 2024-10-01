@@ -3,10 +3,12 @@ package util
 import (
 	"encoding/json"
 	"fmt"
+	goleTime "github.com/simonalong/gole/time"
 	"io"
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -138,11 +140,88 @@ func IsBaseType(fieldType reflect.Type) bool {
 	case reflect.String:
 		return true
 	default:
-		if fieldType.String() == "time.Time" {
-			return true
-		}
 		return false
 	}
+}
+
+func IsStringType(fieldType reflect.Type) bool {
+	fieldKind := fieldType.Kind()
+	if fieldKind == reflect.Ptr {
+		fieldKind = fieldType.Elem().Kind()
+	}
+
+	switch fieldKind {
+	case reflect.String:
+		return true
+	default:
+		return false
+	}
+}
+func IsNumberType(fieldType reflect.Type) bool {
+	fieldKind := fieldType.Kind()
+	if fieldKind == reflect.Ptr {
+		fieldKind = fieldType.Elem().Kind()
+	}
+	switch fieldKind {
+	case reflect.Int:
+		return true
+	case reflect.Int8:
+		return true
+	case reflect.Int16:
+		return true
+	case reflect.Int32:
+		return true
+	case reflect.Int64:
+		return true
+	case reflect.Uint:
+		return true
+	case reflect.Uint8:
+		return true
+	case reflect.Uint16:
+		return true
+	case reflect.Uint32:
+		return true
+	case reflect.Uint64:
+		return true
+	case reflect.Float32:
+		return true
+	case reflect.Float64:
+		return true
+	default:
+		return false
+	}
+}
+
+func IsBoolType(fieldType reflect.Type) bool {
+	fieldKind := fieldType.Kind()
+	if fieldKind == reflect.Ptr {
+		fieldKind = fieldType.Elem().Kind()
+	}
+
+	switch fieldKind {
+	case reflect.Bool:
+		return true
+	default:
+		return false
+	}
+}
+
+func IsTimeType(fieldType reflect.Type) bool {
+	if fieldType.Kind() == reflect.Ptr {
+		fieldType = fieldType.Elem()
+	}
+
+	if fieldType == reflect.TypeOf(time.Time{}) || fieldType == reflect.TypeOf(time.Duration(0)) {
+		return true
+	}
+	return false
+}
+
+func IsArrayType(fieldType reflect.Type) bool {
+	if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
+		return true
+	}
+	return false
 }
 
 func ToJsonString(value any) string {
@@ -417,25 +496,25 @@ func Cast(fieldKind reflect.Kind, valueStr string) (any, error) {
 
 // DataToObject 其他的类型能够按照小写字母转换到对象
 // 其他类型：
-//  - 基本类型
-//  - 结构体类型：转换后对象
-//  - map类型
-//  - 集合/分片类型
-//  - 字符串类型：如果是json，则按照json进行转换
-func DataToObject(data any, targetPtrObj any) error {
+//   - 基本类型
+//   - 结构体类型：转换后对象
+//   - map类型
+//   - 集合/分片类型
+//   - 字符串类型：如果是json，则按照json进行转换
+func DataToObject(data any, targetPtrObj any) (any, error) {
 	if data == nil {
-		return nil
+		return nil, nil
 	}
 	targetType := reflect.TypeOf(targetPtrObj)
 	if targetType.Kind() != reflect.Ptr {
-		return &ChangeError{ErrMsg: "targetPtrObj type is not ptr"}
+		return nil, &ChangeError{ErrMsg: "targetPtrObj type is not ptr"}
 	}
 
 	srcType := reflect.TypeOf(data)
 	if srcType.Kind() == reflect.Map {
-		return MapToObject(data, targetPtrObj)
+		return nil, MapToObject(data, targetPtrObj)
 	} else if srcType.Kind() == reflect.Array || srcType.Kind() == reflect.Slice {
-		return ArrayToObject(data.([]any), targetPtrObj)
+		return nil, ArrayToObject(data.([]any), targetPtrObj)
 	} else {
 		switch data.(type) {
 		case io.Reader:
@@ -443,75 +522,84 @@ func DataToObject(data any, targetPtrObj any) error {
 		case string:
 			return StrToObject(data.(string), targetPtrObj)
 		case any:
-			return MapToObject(ToMap(data), targetPtrObj)
+			return nil, MapToObject(ToMap(data), targetPtrObj)
 		}
 	}
 
 	targetPtrValue := reflect.ValueOf(targetPtrObj)
 	rel, err := Cast(targetPtrValue.Elem().Kind(), fmt.Sprintf("%v", data))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	targetPtrValue.Elem().Set(reflect.ValueOf(rel))
-	return nil
+	return nil, nil
 }
 
-func ReaderToObject(reader io.Reader, targetPtrObj any) error {
+func ReaderToObject(reader io.Reader, targetPtrObj any) (any, error) {
 	if reader == nil {
-		return nil
+		return nil, nil
 	}
 	targetType := reflect.TypeOf(targetPtrObj)
 	if targetType.Kind() != reflect.Ptr {
-		return &ChangeError{ErrMsg: "targetPtrObj type is not ptr"}
+		return nil, &ChangeError{ErrMsg: "targetPtrObj type is not ptr"}
 	}
 	data, err := io.ReadAll(reader)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	return StrToObject(string(data), targetPtrObj)
 }
 
-func StrToObject(contentOfJson string, targetPtrObj any) error {
+// StrToObject str转换为对象
+// 返回值：1，这个返回值主要是用来给基本的指针类型使用
+func StrToObject(contentOfJson string, targetPtrObj any) (any, error) {
 	if contentOfJson == "" {
-		return &ChangeError{ErrMsg: "content is nil"}
+		return nil, &ChangeError{ErrMsg: "content is nil"}
 	}
 
 	targetType := reflect.TypeOf(targetPtrObj)
 	if targetType.Kind() != reflect.Ptr {
-		return &ChangeError{ErrMsg: "targetPtrObj type is not ptr"}
+		return nil, &ChangeError{ErrMsg: "targetPtrObj type is not ptr"}
 	}
 
 	if !strings.HasPrefix(contentOfJson, "{") && !strings.HasPrefix(contentOfJson, "[") {
 		targetPtrValue := reflect.ValueOf(targetPtrObj)
-		rel, err := Cast(targetPtrValue.Elem().Kind(), contentOfJson)
+		rel, err := Cast(reflect.TypeOf(targetPtrObj).Elem().Kind(), contentOfJson)
 		if err != nil {
-			return err
+			return nil, err
+		}
+		if targetPtrValue.IsNil() {
+			targetPtrValue = reflect.New(reflect.TypeOf(targetPtrObj).Elem())
 		}
 		targetPtrValue.Elem().Set(reflect.ValueOf(rel))
+		return targetPtrValue.Interface(), nil
 	}
 
 	if strings.HasPrefix(contentOfJson, "{") && (reflect.ValueOf(targetPtrObj).Elem().Kind() == reflect.Map || reflect.ValueOf(targetPtrObj).Elem().Kind() == reflect.Struct) {
 		resultMap := make(map[string]any)
 		err := json.Unmarshal([]byte(contentOfJson), &resultMap)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return MapToObject(resultMap, targetPtrObj)
+		return nil, MapToObject(resultMap, targetPtrObj)
 	} else if strings.HasPrefix(contentOfJson, "[") && (reflect.ValueOf(targetPtrObj).Elem().Kind() == reflect.Slice || reflect.ValueOf(targetPtrObj).Elem().Kind() == reflect.Array) {
 		var srcArray []any
 		err := json.Unmarshal([]byte(contentOfJson), &srcArray)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return ArrayToObject(srcArray, targetPtrObj)
+		return nil, ArrayToObject(srcArray, targetPtrObj)
 	} else {
 		targetPtrValue := reflect.ValueOf(targetPtrObj)
-		rel, err := Cast(targetPtrValue.Elem().Kind(), contentOfJson)
+		rel, err := Cast(reflect.TypeOf(targetPtrObj).Elem().Kind(), contentOfJson)
 		if err != nil {
-			return err
+			return nil, err
+		}
+		if targetPtrValue.IsNil() {
+			targetPtrValue = reflect.New(reflect.TypeOf(targetPtrObj).Elem())
 		}
 		targetPtrValue.Elem().Set(reflect.ValueOf(rel))
-		return nil
+		return targetPtrValue.Interface(), nil
 	}
 }
 
@@ -616,16 +704,16 @@ func doInvokeValue(fieldMapValue reflect.Value, field reflect.StructField, field
 
 	var fValue reflect.Value
 	if v, exist := getValueFromMapValue(fieldMapValue, field.Name); exist {
-		// 兼容DataGoleUser格式读取
+		// 兼容DataBaseUser格式读取
 		fValue = v
 	} else if v, exist := getValueFromMapValue(fieldMapValue, BigCamelToMiddleLine(field.Name)); exist {
-		// 兼容data-gole-user格式读取
+		// 兼容data-base-user格式读取
 		fValue = v
 	} else if v, exist := getValueFromMapValue(fieldMapValue, BigCamelToSmallCamel(field.Name)); exist {
-		// 兼容dataGoleUser格式读取
+		// 兼容dataBaseUser格式读取
 		fValue = v
 	} else if v, exist := getValueFromMapValue(fieldMapValue, BigCamelToUnderLine(field.Name)); exist {
-		// 兼容data_gole_user格式读取
+		// 兼容data_base_user格式读取
 		fValue = v
 	} else {
 		aliasJson := field.Tag.Get("json")
@@ -655,16 +743,38 @@ func doInvokeValue(fieldMapValue reflect.Value, field reflect.StructField, field
 		fValue = fValue.Elem()
 	}
 	targetValue := valueToTarget(fValue, field.Type)
-	if targetValue.IsValid() {
-		if fieldValue.Kind() == reflect.Ptr {
-			if targetValue.Kind() == reflect.Ptr {
-				fieldValue.Elem().FieldByName(field.Name).Set(targetValue.Elem().Convert(field.Type))
+	if !targetValue.IsValid() || targetValue.IsZero() {
+		return
+	}
+
+	if fieldValue.Kind() == reflect.Ptr {
+		if fieldValue.IsNil() {
+			fieldValue.Set(reflect.New(field.Type.Elem()))
+		}
+
+		if targetValue.Kind() == reflect.Ptr {
+			if field.Type.Kind() == reflect.Ptr {
+				fieldValue.Elem().Set(targetValue.Elem().Convert(field.Type.Elem()))
 			} else {
-				fieldValue.Elem().FieldByName(field.Name).Set(targetValue.Convert(field.Type))
+				fieldValue.Elem().Set(targetValue.Elem().Convert(field.Type))
 			}
 		} else {
-			if targetValue.Kind() == reflect.Ptr {
+			if field.Type.Kind() == reflect.Ptr {
+				fieldValue.Elem().Set(targetValue.Convert(field.Type.Elem()))
+			} else {
+				fieldValue.Elem().Set(targetValue.Convert(field.Type))
+			}
+		}
+	} else {
+		if targetValue.Kind() == reflect.Ptr {
+			if field.Type.Kind() == reflect.Ptr {
+				fieldValue.Set(targetValue.Elem().Convert(field.Type.Elem()))
+			} else {
 				fieldValue.Set(targetValue.Elem().Convert(field.Type))
+			}
+		} else {
+			if field.Type.Kind() == reflect.Ptr {
+				fieldValue.Set(targetValue.Convert(field.Type.Elem()))
 			} else {
 				fieldValue.Set(targetValue.Convert(field.Type))
 			}
@@ -673,7 +783,32 @@ func doInvokeValue(fieldMapValue reflect.Value, field reflect.StructField, field
 }
 
 func valueToTarget(srcValue reflect.Value, dstType reflect.Type) reflect.Value {
-	if dstType.Kind() == reflect.Struct {
+	if dstType.Kind() == reflect.Ptr {
+		dstType = dstType.Elem()
+	}
+
+	if dstType == reflect.TypeOf(time.Time{}) {
+		// 针对时间类型单独处理
+		if timestampVal, ok := srcValue.Interface().(time.Time); ok {
+			return reflect.ValueOf(timestampVal)
+		}
+	} else if dstType.Kind() == reflect.Struct {
+		if dstType == reflect.TypeOf(time.Time{}) {
+			// 特殊处理：string类型转换time.Time类型；比如3ms，三毫秒，这种字符串转换为time.Duration类型
+			sourceValue := reflect.ValueOf(srcValue.Interface())
+			if sourceValue.IsValid() && IsBaseType(sourceValue.Type()) {
+				dataTime, err := goleTime.ParseTime(fmt.Sprintf("%v", sourceValue.Interface()))
+				if err == nil {
+					return reflect.ValueOf(dataTime)
+				} else {
+					v, err := Cast(dstType.Kind(), fmt.Sprintf("%v", srcValue.Interface()))
+					if err == nil {
+						return reflect.ValueOf(v)
+					}
+				}
+			}
+		}
+
 		if srcValue.Kind() == reflect.Ptr {
 			srcValue = srcValue.Elem()
 		}
@@ -746,17 +881,31 @@ func valueToTarget(srcValue reflect.Value, dstType reflect.Type) reflect.Value {
 			return arrayFieldValue
 		}
 	} else if IsBaseType(dstType) {
-		sourceValue := reflect.ValueOf(srcValue.Interface())
-		if sourceValue.IsValid() && IsBaseType(sourceValue.Type()) {
-			v, err := Cast(dstType.Kind(), fmt.Sprintf("%v", srcValue.Interface()))
-			if err == nil {
-				return reflect.ValueOf(v)
+		// 特殊处理：string类型转换time.Duration类型；比如3ms，三毫秒，这种字符串转换为time.Duration类型
+		if dstType == reflect.TypeOf(time.Duration(0)) {
+			sourceValue := reflect.ValueOf(srcValue.Interface())
+			if sourceValue.IsValid() && IsBaseType(sourceValue.Type()) {
+				duration, err := time.ParseDuration(fmt.Sprintf("%v", sourceValue.Interface()))
+				if err == nil {
+					return reflect.ValueOf(duration)
+				} else {
+					v, err := Cast(dstType.Kind(), fmt.Sprintf("%v", srcValue.Interface()))
+					if err == nil {
+						return reflect.ValueOf(v)
+					}
+				}
+			}
+		} else {
+			sourceValue := reflect.ValueOf(srcValue.Interface())
+			if sourceValue.IsValid() && IsBaseType(sourceValue.Type()) {
+				v, err := Cast(dstType.Kind(), fmt.Sprintf("%v", srcValue.Interface()))
+				if err == nil {
+					return reflect.ValueOf(v)
+				}
 			}
 		}
 	} else if dstType.Kind() == reflect.Interface {
 		return reflect.ValueOf(ObjectToData(srcValue.Interface()))
-	} else if dstType.Kind() == reflect.Ptr {
-		return srcValue
 	} else {
 		v, err := Cast(dstType.Kind(), fmt.Sprintf("%v", srcValue.Interface()))
 		if err == nil {
@@ -886,7 +1035,7 @@ func ObjectToJson(object any) string {
 		return ToJsonString(resultMap)
 	} else if objKind == reflect.Array || objKind == reflect.Slice {
 		// Array 结构
-		resultSlice := []any{}
+		var resultSlice []any
 		objValue := reflect.ValueOf(object)
 		for index := 0; index < objValue.Len(); index++ {
 			arrayItemValue := objValue.Index(index)

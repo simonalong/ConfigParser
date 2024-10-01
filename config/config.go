@@ -135,7 +135,7 @@ func GetConfigValue(c *gin.Context) {
 
 func UpdateConfig(c *gin.Context) {
 	valueMap := map[string]any{}
-	err := util.DataToObject(c.Request.Body, &valueMap)
+	_, err := util.DataToObject(c.Request.Body, &valueMap)
 	if err != nil {
 		log.Printf("解析失败，%v", err.Error())
 		return
@@ -545,7 +545,7 @@ func parseProperties(key string, value any, resultMap map[string]any) (map[strin
 		}
 	} else if reflect.ValueOf(value).Kind() == reflect.Slice || reflect.ValueOf(value).Kind() == reflect.Array {
 		values := []any{}
-		err := util.DataToObject(util.ObjectToJson(value), &values)
+		_, err := util.DataToObject(util.ObjectToJson(value), &values)
 		if err != nil {
 			return resultMap, err
 		}
@@ -848,7 +848,7 @@ func GetValueObject(key string, targetPtrObj any) error {
 		return nil
 	}
 	data := doGetValue(appProperty.ValueDeepMap, key)
-	err := util.DataToObject(data, targetPtrObj)
+	_, err := util.DataToObject(data, targetPtrObj)
 	if err != nil {
 		return err
 	}
@@ -862,7 +862,7 @@ func GetValueArray(key string) []any {
 
 	var arrayResult []any
 	data := doGetValue(appProperty.ValueDeepMap, key)
-	err := util.DataToObject(data, &arrayResult)
+	_, err := util.DataToObject(data, &arrayResult)
 	if err != nil {
 		return arrayResult
 	}
@@ -876,7 +876,7 @@ func GetValueArrayInt(key string) []int {
 
 	var arrayResult []int
 	data := doGetValue(appProperty.ValueDeepMap, key)
-	err := util.DataToObject(data, &arrayResult)
+	_, err := util.DataToObject(data, &arrayResult)
 	if err != nil {
 		return arrayResult
 	}
@@ -890,7 +890,7 @@ func GetValueArrayString(key string) []string {
 
 	var arrayResult []string
 	data := doGetValue(appProperty.ValueDeepMap, key)
-	err := util.DataToObject(data, &arrayResult)
+	_, err := util.DataToObject(data, &arrayResult)
 	if err != nil {
 		return arrayResult
 	}
@@ -930,16 +930,16 @@ type ApplicationProperty struct {
 	ValueDeepMap map[string]any
 }
 
-//LoadYamlConfig read fileName from private path fileName,eg:application.yml, and transform it to AConfig
-//note: AConfig must be a pointer
+// LoadYamlConfig read fileName from private path fileName,eg:application.yml, and transform it to AConfig
+// note: AConfig must be a pointer
 func LoadYamlConfig(fileName string, AConfig any, handler func(data []byte, AConfig any) error) error {
 	pwd, _ := os.Getwd()
 	fp := filepath.Join(pwd, fileName)
 	return LoadYamlConfigByAbsolutPath(fp, AConfig, handler)
 }
 
-//LoadYamlConfigByAbsolutPath read fileName from absolute path fileName,eg:/home/gole/application.yml, and transform it to AConfig
-//note: AConfig must be a pointer
+// LoadYamlConfigByAbsolutPath read fileName from absolute path fileName,eg:/home/gole/application.yml, and transform it to AConfig
+// note: AConfig must be a pointer
 func LoadYamlConfigByAbsolutPath(path string, AConfig any, handler func(data []byte, AConfig any) error) error {
 	data, err := os.ReadFile(path)
 	if err != nil {

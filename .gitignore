@@ -275,4 +275,4 @@ fabric.properties
 .idea
 !.gitignore
 /logs/
-*.log
+**/logs

@@ -1,6 +1,7 @@
 package time
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -18,8 +19,8 @@ var (
 	Minute = "04"
 	Second = "05"
 
-	FmtYMdHmsSSS = "2006-01-02 15:04:05.000"
-	FmtYMdHmsS   = "2006-01-02 15:04:05.0"
+	FmtYMdHmsSuS = "2006-01-02 15:04:05.000000"
+	FmtYMdHmsS   = "2006-01-02 15:04:05.000"
 	FmtYMdHms    = "2006-01-02 15:04:05"
 	FmtYMdHm     = "2006-01-02 15:04"
 	FmtYMdH      = "2006-01-02 15"
@@ -28,25 +29,37 @@ var (
 	FmtY         = "2006"
 	FmtYYYYMMdd  = "20060102"
 
-	FmtHmsSSSMore = "15:04:05.000000000"
-	FmtHmsSSS     = "15:04:05.000"
-	FmtHms        = "15:04:05"
-	FmtHm         = "15:04"
-	FmtH          = "15"
+	FmtCnYMdHmsSuS = "2006年01月02日 15时04分05秒000000微秒"
+	FmtCnYMdHmsS   = "2006年01月02日 15时04分05秒000毫秒"
+	FmtCnYMdHms    = "2006年01月02日 15时04分05秒"
+	FmtCnYMdHm     = "2006年01月02日 15时04分"
+	FmtCnYMdH      = "2006年01月02日 15时"
+	FmtCnYMd       = "2006年01月02日"
+	FmtCnYM        = "2006年01月"
+	FmtCnY         = "2006年"
+
+	FmtHmsSMore = "15:04:05.000000000"
+	FmtHmsS     = "15:04:05.000"
+	FmtHms      = "15:04:05"
+	FmtHm       = "15:04"
+	FmtH        = "15"
 
 	EmptyTime = t0.Time{}
 
-	yRegex        = regexp.MustCompile("^(\\d){4}$")
-	yyyyMmDdRegex = regexp.MustCompile("^(\\d){4}(\\d){2}(\\d){2}$")
-	ymRegex       = regexp.MustCompile("^(\\d){4}-(\\d){2}$")
-	ymdRegex      = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2}$")
-	ymdHRegex     = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}$")
-	ymdHmRegex    = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}$")
-	ymdHmsRegex   = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}:(\\d){2}$")
-	ymdHmsSRegex  = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}:(\\d){2}.(\\d){3}$")
+	yRegex         = regexp.MustCompile("^(\\d){4}$")
+	yyyyMmDdRegex  = regexp.MustCompile("^(\\d){4}(\\d){2}(\\d){2}$")
+	ymRegex        = regexp.MustCompile("^(\\d){4}-(\\d){2}$")
+	ymdRegex       = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2}$")
+	ymdHRegex      = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}$")
+	ymdHmRegex     = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}$")
+	ymdHmsRegex    = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}:(\\d){2}$")
+	ymdHmsSRegex   = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}:(\\d){2}.(\\d){3}$")
+	ymdHmsSuSRegex = regexp.MustCompile("^(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}:(\\d){2}.(\\d){6}$")
 )
 
 type FPCDateTime float64
+
+var DefaultLocation *t0.Location
 
 const (
 	DateDelta   = 693594 // Days between 1/1/0001 and 12/31/1899
@@ -70,32 +83,53 @@ const (
 	ApproxDaysPerYear  = 365.25
 )
 
+func init() {
+	_DefaultLocation, _ := t0.LoadLocation("Asia/Shanghai")
+	DefaultLocation = _DefaultLocation
+}
+
+func TimeToStringYmd(t t0.Time) string {
+	return t.Format(FmtYMd)
+}
+
 func TimeToStringYmdHms(t t0.Time) string {
 	return t.Format(FmtYMdHms)
 }
 
 func TimeToStringYmdHmsS(t t0.Time) string {
-	return t.Format(FmtYMdHmsSSS)
+	return t.Format(FmtYMdHmsS)
 }
 
 func TimeToStringFormat(t t0.Time, format string) string {
 	return t.Format(format)
 }
 
-func ParseTimeYmsHms(timeStr string) (t0.Time, error) {
-	return t0.ParseInLocation(Year+"-"+Month+"-"+Day+" "+Hour+":"+Minute+":"+Second, timeStr, t0.Local)
+func ParseTimeYmd(timeStr string) (t0.Time, error) {
+	return t0.ParseInLocation(FmtYMd, timeStr, t0.Local)
 }
 
-func ParseTimeYmsHmsS(timeStr string) (t0.Time, error) {
-	return t0.ParseInLocation(Year+"-"+Month+"-"+Day+" "+Hour+":"+Minute+":"+Second+".000", timeStr, t0.Local)
+func ParseTimeYmdHms(timeStr string) (t0.Time, error) {
+	return t0.ParseInLocation(FmtYMdHms, timeStr, t0.Local)
 }
 
-func ParseTimeYmsHmsLoc(timeStr string, loc *t0.Location) (t0.Time, error) {
-	return t0.ParseInLocation(Year+"-"+Month+"-"+Day+" "+Hour+":"+Minute+":"+Second, timeStr, loc)
+func ParseTimeYmdHmsS(timeStr string) (t0.Time, error) {
+	return t0.ParseInLocation(FmtYMdHmsS, timeStr, t0.Local)
 }
 
-func ParseTimeYmsHmsSLoc(timeStr string, loc *t0.Location) (t0.Time, error) {
-	return t0.ParseInLocation(Year+"-"+Month+"-"+Day+" "+Hour+":"+Minute+":"+Second+".000", timeStr, loc)
+func ParseTimeYmdHmsSuS(timeStr string) (t0.Time, error) {
+	return t0.ParseInLocation(FmtYMdHmsSuS, timeStr, t0.Local)
+}
+
+func ParseTimeYmdHmsLoc(timeStr string, loc *t0.Location) (t0.Time, error) {
+	return t0.ParseInLocation(FmtYMdHms, timeStr, loc)
+}
+
+func ParseTimeYmdHmsSLoc(timeStr string, loc *t0.Location) (t0.Time, error) {
+	return t0.ParseInLocation(FmtYMdHmsS, timeStr, loc)
+}
+
+func ParseTimeYmdHmsSusLoc(timeStr string, loc *t0.Location) (t0.Time, error) {
+	return t0.ParseInLocation(FmtYMdHmsSuS, timeStr, loc)
 }
 
 // TimeInMillis 13位java时间戳
@@ -138,18 +172,6 @@ func MinuteOfDay(t t0.Time) int {
 
 func SecondOfDay(t t0.Time) int {
 	return t.Hour()*3600 + t.Minute()*60 + t.Second()
-}
-
-func MinutesToTime(minutes int) (hour int, minute int) {
-	h0 := minutes / 60
-	m0 := minutes % 60
-	return h0, m0
-}
-
-func SecondsToTime(seconds int) (hour int, minute int, second int) {
-	h0, m0 := MinutesToTime(seconds / 60)
-	s0 := seconds % 60
-	return h0, m0, s0
 }
 
 func IsLeapYear(year int) bool {
@@ -244,8 +266,8 @@ func Now() t0.Time {
 	return t0.Now()
 }
 
-func AddHour(times t0.Time, plusOrMinus string, seconds string) t0.Time {
-	h, _ := t0.ParseDuration(fmt.Sprintf("%s%v", plusOrMinus, seconds))
+func AddHour(times t0.Time, plusOrMinus string, hours string) t0.Time {
+	h, _ := t0.ParseDuration(fmt.Sprintf("%s%v", plusOrMinus, hours))
 	return times.Add(h)
 }
 
@@ -254,8 +276,13 @@ func AddMinutes(times t0.Time, plusOrMinus string, minutes string) t0.Time {
 	return times.Add(h)
 }
 
-func AddSeconds(times t0.Time, plusOrMinus string, hours string) t0.Time {
-	h, _ := t0.ParseDuration(fmt.Sprintf("%s%v", plusOrMinus, hours))
+func AddSeconds(times t0.Time, plusOrMinus string, seconds string) t0.Time {
+	h, _ := t0.ParseDuration(fmt.Sprintf("%s%v", plusOrMinus, seconds))
+	return times.Add(h)
+}
+
+func AddTime(times t0.Time, plusOrMinus string, timeStr string) t0.Time {
+	h, _ := t0.ParseDuration(fmt.Sprintf("%s%v", plusOrMinus, timeStr))
 	return times.Add(h)
 }
 
@@ -271,65 +298,80 @@ func AddYears(times t0.Time, year int) t0.Time {
 	return times.AddDate(year, 0, 0)
 }
 
-func ParseTime(timeStr string) t0.Time {
+func ParseTime(timeStr string) (t0.Time, error) {
 	timeStr = strings.TrimSpace(timeStr)
 	timeStr = strings.TrimSpace(strings.ReplaceAll(timeStr, "\\'", " "))
 
 	if timeStr == "" {
-		return EmptyTime
+		return EmptyTime, errors.New("时间字段为空")
 	}
 	if yRegex.MatchString(timeStr) {
-		if times, err := t0.Parse(FmtY, timeStr); err == nil {
-			return times
+		if times, err := t0.ParseInLocation(FmtY, timeStr, DefaultLocation); err == nil {
+			return times, nil
 		} else {
-			log.Printf("解析时间错误, err: %v", err)
+			return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, err: %v", err))
 		}
 	} else if yyyyMmDdRegex.MatchString(timeStr) {
-		if times, err := t0.Parse(FmtYYYYMMdd, timeStr); err == nil {
-			return times
+		if times, err := t0.ParseInLocation(FmtYYYYMMdd, timeStr, DefaultLocation); err == nil {
+			return times, nil
 		} else {
 			log.Printf("解析时间错误, err: %v", err)
+			return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, err: %v", err))
 		}
 	} else if ymRegex.MatchString(timeStr) {
-		if times, err := t0.Parse(FmtYM, timeStr); err == nil {
-			return times
+		if times, err := t0.ParseInLocation(FmtYM, timeStr, DefaultLocation); err == nil {
+			return times, nil
 		} else {
 			log.Printf("解析时间错误, err: %v", err)
+			return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, err: %v", err))
 		}
 	} else if ymdRegex.MatchString(timeStr) {
-		if times, err := t0.Parse(FmtYMd, timeStr); err == nil {
-			return times
+		if times, err := t0.ParseInLocation(FmtYMd, timeStr, DefaultLocation); err == nil {
+			return times, nil
 		} else {
 			log.Printf("解析时间错误, err: %v", err)
+			return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, err: %v", err))
 		}
 	} else if ymdHRegex.MatchString(timeStr) {
-		if times, err := t0.Parse(FmtYMdH, timeStr); err == nil {
-			return times
+		if times, err := t0.ParseInLocation(FmtYMdH, timeStr, DefaultLocation); err == nil {
+			return times, nil
 		} else {
 			log.Printf("解析时间错误, err: %v", err)
+			return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, err: %v", err))
 		}
 	} else if ymdHmRegex.MatchString(timeStr) {
-		if times, err := t0.Parse(FmtYMdHm, timeStr); err == nil {
-			return times
+		if times, err := t0.ParseInLocation(FmtYMdHm, timeStr, DefaultLocation); err == nil {
+			return times, nil
 		} else {
 			log.Printf("解析时间错误, err: %v", err)
+			return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, err: %v", err))
 		}
 	} else if ymdHmsRegex.MatchString(timeStr) {
-		if times, err := t0.Parse(FmtYMdHms, timeStr); err == nil {
-			return times
+		if times, err := t0.ParseInLocation(FmtYMdHms, timeStr, DefaultLocation); err == nil {
+			return times, nil
 		} else {
 			log.Printf("解析时间错误, err: %v", err)
+			return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, err: %v", err))
 		}
 	} else if ymdHmsSRegex.MatchString(timeStr) {
-		if times, err := t0.Parse(FmtYMdHmsSSS, timeStr); err == nil {
-			return times
+		if times, err := t0.ParseInLocation(FmtYMdHmsS, timeStr, DefaultLocation); err == nil {
+			return times, nil
 		} else {
 			log.Printf("解析时间错误, err: %v", err)
+			return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, err: %v", err))
+		}
+	} else if ymdHmsSuSRegex.MatchString(timeStr) {
+		if times, err := t0.ParseInLocation(FmtYMdHmsSuS, timeStr, DefaultLocation); err == nil {
+			return times, nil
+		} else {
+			log.Printf("解析时间错误, err: %v", err)
+			return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, err: %v", err))
 		}
 	} else {
 		log.Printf("解析时间错误, time: %v", timeStr)
+		return EmptyTime, errors.New(fmt.Sprintf("解析时间错误, time: %v", timeStr))
 	}
-	return EmptyTime
+	return EmptyTime, errors.New("内部解析器格式暂时不匹配")
 }
 
 func IsTimeEmpty(time t0.Time) bool {
@@ -339,4 +381,15 @@ func IsTimeEmpty(time t0.Time) bool {
 func NumToTimeDuration(num int, duration t0.Duration) t0.Duration {
 	int64Num, _ := strconv.ParseInt(fmt.Sprintf("%v", num), 10, 64)
 	return t0.Duration(int64Num * duration.Nanoseconds())
+}
+
+func MillisecondToTime(milliseconds int64) t0.Time {
+	seconds := milliseconds / 1000
+	nanoseconds := (milliseconds % 1000) * 1e6
+	return t0.Unix(seconds, nanoseconds)
+}
+
+// GetMiddleTime 获取两个时间的中间时间
+func GetMiddleTime(t1, t2 t0.Time) t0.Time {
+	return t1.Add(t2.Sub(t1) / 2)
 }

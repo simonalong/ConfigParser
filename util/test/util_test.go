@@ -359,7 +359,7 @@ func TestDataToObject1(t *testing.T) {
 	inner1["age"] = 1
 
 	var targetObj ValueInnerEntity1
-	_ = util.DataToObject(inner1, &targetObj)
+	_, _ = util.DataToObject(inner1, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_1\",\"Age\":1}", util.ToJsonString(targetObj))
 }
 
@@ -374,7 +374,7 @@ func TestDataToObject2(t *testing.T) {
 	inner2["inner1"] = inner1
 
 	var targetObj ValueInnerEntity2
-	_ = util.DataToObject(inner2, &targetObj)
+	_, _ = util.DataToObject(inner2, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_2\",\"Age\":2,\"Inner1\":{\"Name\":\"inner_1\",\"Age\":1}}", util.ToJsonString(targetObj))
 }
 
@@ -394,7 +394,7 @@ func TestDataToObject3(t *testing.T) {
 	inner3["inner2"] = inner2
 
 	var targetObj ValueInnerEntity3
-	_ = util.DataToObject(inner3, &targetObj)
+	_, _ = util.DataToObject(inner3, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_3\",\"Age\":3,\"Inner2\":{\"Name\":\"inner_2\",\"Age\":2,\"Inner1\":{\"Name\":\"inner_1\",\"Age\":1}}}", util.ToJsonString(targetObj))
 }
 
@@ -409,7 +409,7 @@ func TestDataToObject4(t *testing.T) {
 	inner1["dataMap"] = kvMap
 
 	var targetObj ValueInnerEntity4
-	_ = util.DataToObject(inner1, &targetObj)
+	_, _ = util.DataToObject(inner1, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_1\",\"Age\":1,\"DataMap\":{\"k1\":\"name1\",\"k2\":\"name2\"}}", util.ToJsonString(targetObj))
 }
 
@@ -432,7 +432,7 @@ func TestDataToObject5(t *testing.T) {
 	inner1["dataMap"] = kvMap
 
 	var targetObj ValueInnerEntity5
-	_ = util.DataToObject(inner1, &targetObj)
+	_, _ = util.DataToObject(inner1, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_1\",\"Age\":1,\"DataMap\":{\"k1\":{\"Name\":\"inner_1\",\"Age\":1},\"k2\":{\"Name\":\"inner_2\",\"Age\":2}}}", util.ToJsonString(targetObj))
 }
 
@@ -451,7 +451,7 @@ func TestDataToObject6(t *testing.T) {
 	inner1["dataMap"] = kvMap
 
 	var targetObj ValueInnerEntity6
-	_ = util.DataToObject(inner1, &targetObj)
+	_, _ = util.DataToObject(inner1, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_1\",\"Age\":1,\"DataMap\":{\"k1\":[12,13],\"k2\":[12,13]}}", util.ToJsonString(targetObj))
 }
 
@@ -470,7 +470,7 @@ func TestDataToObject7(t *testing.T) {
 	inner1["dataMap"] = kvMap
 
 	var targetObj ValueInnerEntity7
-	_ = util.DataToObject(inner1, &targetObj)
+	_, _ = util.DataToObject(inner1, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_1\",\"Age\":1,\"DataMap\":{\"k1\":[{\"Name\":\"name1\",\"Age\":1},{\"Name\":\"name2\",\"Age\":2}],\"k2\":[{\"Name\":\"name1\",\"Age\":1},{\"Name\":\"name2\",\"Age\":2}]}}", util.ToJsonString(targetObj))
 }
 
@@ -489,7 +489,7 @@ func TestDataToObject8(t *testing.T) {
 	inner1["dataMap"] = kvMap
 
 	var targetObj ValueInnerEntity8
-	_ = util.DataToObject(inner1, &targetObj)
+	_, _ = util.DataToObject(inner1, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_1\",\"Age\":1,\"DataMap\":{\"k1\":[{\"Name\":\"name1\",\"Address\":\"\"},{\"Name\":\"name2\",\"Address\":\"\"}],\"k2\":[{\"Name\":\"name1\",\"Address\":\"\"},{\"Name\":\"name2\",\"Address\":\"\"}]}}", util.ToJsonString(targetObj))
 }
 
@@ -508,7 +508,7 @@ func TestDataToObject9(t *testing.T) {
 	inner1["dataMap"] = kvMap
 
 	var targetObj ValueInnerEntity9
-	_ = util.DataToObject(inner1, &targetObj)
+	_, _ = util.DataToObject(inner1, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_1\",\"Age\":1,\"DataMap\":{\"k1\":[{\"Name\":\"name1\",\"Age\":1},{\"Name\":\"name2\",\"Age\":2}],\"k2\":[{\"Name\":\"name1\",\"Age\":1},{\"Name\":\"name2\",\"Age\":2}]}}", util.ToJsonString(targetObj))
 }
 
@@ -527,50 +527,50 @@ func TestDataToObject10(t *testing.T) {
 	inner1["dataMap"] = kvMap
 
 	var targetObj ValueInnerEntity9
-	_ = util.DataToObject(inner1, &targetObj)
+	_, _ = util.DataToObject(inner1, &targetObj)
 	test.Equal(t, "{\"Name\":\"inner_1\",\"Age\":1,\"DataMap\":{\"k1\":[{\"Name\":\"name1\",\"Age\":1},{\"Name\":\"name2\",\"Age\":2}],\"k2\":[{\"Name\":\"name1\",\"Age\":1},{\"Name\":\"name2\",\"Age\":2}]}}", util.ToJsonString(targetObj))
 }
 
 // strToObject
 func TestStrToObject1(t *testing.T) {
 	var targetObj int
-	_ = util.StrToObject("123", &targetObj)
+	_, _ = util.StrToObject("123", &targetObj)
 	test.Equal(t, targetObj, 123)
 }
 
 func TestStrToObject2(t *testing.T) {
 	var targetObj string
-	_ = util.StrToObject("ok", &targetObj)
+	_, _ = util.StrToObject("ok", &targetObj)
 	test.Equal(t, targetObj, "ok")
 }
 
 func TestStrToObject3(t *testing.T) {
 	var targetObj string
-	_ = util.StrToObject("{\"nihao\": \"haode\"}", &targetObj)
+	_, _ = util.StrToObject("{\"nihao\": \"haode\"}", &targetObj)
 	test.Equal(t, targetObj, "{\"nihao\": \"haode\"}")
 }
 
 func TestStrToObject4(t *testing.T) {
 	var targetObj ValueInnerEntity1
-	_ = util.StrToObject("{\"Age\": 12}", &targetObj)
+	_, _ = util.StrToObject("{\"Age\": 12}", &targetObj)
 	test.Equal(t, util.ToJsonString(targetObj), "{\"Name\":\"\",\"Age\":12}")
 }
 
 func TestStrToObject5(t *testing.T) {
 	var targetObj ValueInnerEntity1
-	_ = util.StrToObject("{\"age\": 12}", &targetObj)
+	_, _ = util.StrToObject("{\"age\": 12}", &targetObj)
 	test.Equal(t, util.ToJsonString(targetObj), "{\"Name\":\"\",\"Age\":12}")
 }
 
 func TestStrToObject6(t *testing.T) {
 	targetObj := map[string]any{}
-	_ = util.StrToObject("{\"age\": 12}", &targetObj)
+	_, _ = util.StrToObject("{\"age\": 12}", &targetObj)
 	test.Equal(t, util.ToJsonString(targetObj), "{\"age\":12}")
 }
 
 func TestStrToObject7(t *testing.T) {
 	var targetObj []ValueInnerEntity1
-	_ = util.StrToObject("[{\"Age\": 12},{\"Age\":14}]", &targetObj)
+	_, _ = util.StrToObject("[{\"Age\": 12},{\"Age\":14}]", &targetObj)
 	test.Equal(t, util.ObjectToJson(targetObj), "[{\"age\":12,\"name\":\"\"},{\"age\":14,\"name\":\"\"}]")
 }
 
@@ -584,7 +584,7 @@ func TestStrToObject8(t *testing.T) {
 	str := "{\"dataMap\":{\"haha\":12,\"innerKey\":\"ok\"}}"
 
 	var targetObj ValueInnerEntityStr1
-	_ = util.StrToObject(str, &targetObj)
+	_, _ = util.StrToObject(str, &targetObj)
 	test.Equal(t, util.ObjectToJson(targetObj), str)
 }
 
@@ -617,7 +617,7 @@ type ConfigItemFromCommonReq struct {
 func TestTtt(t *testing.T) {
 	str := "{\"configItemKey\":null}"
 	req := ConfigItemFromCommonReq{}
-	_ = util.StrToObject(str, &req)
+	_, _ = util.StrToObject(str, &req)
 	t.Log(req)
 }
 
@@ -779,7 +779,7 @@ func TestObjectToJson9(t *testing.T) {
 	rel := "{\"Records\":[{\"Id\":121,\"AppName\":\"asdf\",\"AppDesc\":\"fffds\",\"ActiveStatus\":1,\"CreateTime\":\"2021-12-20 14:05:10 +0800 CST\",\"UpdateTime\":\"2021-12-21 14:19:13 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":0,\"Version\":0},{\"Id\":117,\"AppName\":\"apaas-service\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-12-06 10:32:11 +0800 CST\",\"UpdateTime\":\"2021-12-06 10:32:11 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":10,\"Version\":0},{\"Id\":116,\"AppName\":\"config-sample-3\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-11-05 19:35:07 +0800 CST\",\"UpdateTime\":\"2021-11-05 19:35:07 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":4,\"Version\":0},{\"Id\":115,\"AppName\":\"config-sample-2\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-11-05 19:27:55 +0800 CST\",\"UpdateTime\":\"2021-11-05 19:27:55 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":4,\"Version\":0},{\"Id\":113,\"AppName\":\"config-sample1\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-11-05 19:21:18 +0800 CST\",\"UpdateTime\":\"2021-11-05 19:21:18 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":0,\"Version\":0},{\"Id\":112,\"AppName\":\"app-demo-xxx\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-09-28 14:29:46 +0800 CST\",\"UpdateTime\":\"2021-09-28 14:29:46 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":3,\"Version\":25},{\"Id\":84,\"AppName\":\"config-sample3\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-09-22 13:46:36 +0800 CST\",\"UpdateTime\":\"2021-09-22 13:46:36 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":2,\"Version\":23},{\"Id\":83,\"AppName\":\"config-sample-local\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-09-22 11:22:12 +0800 CST\",\"UpdateTime\":\"2021-09-22 11:22:12 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":29,\"Version\":22},{\"Id\":82,\"AppName\":\"monitoring-service2\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-09-18 11:47:50 +0800 CST\",\"UpdateTime\":\"2021-09-18 11:47:50 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":15,\"Version\":0},{\"Id\":81,\"AppName\":\"monitoring-service1\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-09-11 18:02:25 +0800 CST\",\"UpdateTime\":\"2021-09-11 18:02:25 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":15,\"Version\":21},{\"Id\":80,\"AppName\":\"lamp-demo-a\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-09-10 17:21:40 +0800 CST\",\"UpdateTime\":\"2021-09-10 17:28:18 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":1,\"Version\":20},{\"Id\":79,\"AppName\":\"pivotdemoa\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-09-10 17:17:33 +0800 CST\",\"UpdateTime\":\"2021-09-10 17:17:33 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":1,\"Version\":19},{\"Id\":78,\"AppName\":\"config-sample2\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-09-09 16:16:55 +0800 CST\",\"UpdateTime\":\"2021-09-09 16:16:55 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":25,\"Version\":18},{\"Id\":77,\"AppName\":\"config-sample-client\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-09-09 13:40:10 +0800 CST\",\"UpdateTime\":\"2021-09-09 13:40:10 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":25,\"Version\":17},{\"Id\":76,\"AppName\":\"pivot-client\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-08-30 17:53:10 +0800 CST\",\"UpdateTime\":\"2021-08-31 10:08:53 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":2,\"Version\":16},{\"Id\":74,\"AppName\":\"rpc-3-os0\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-08-30 17:52:17 +0800 CST\",\"UpdateTime\":\"2021-08-30 17:52:17 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":25,\"Version\":14},{\"Id\":73,\"AppName\":\"rpc-os0\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-07-06 15:23:25 +0800 CST\",\"UpdateTime\":\"2021-07-06 15:23:25 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":25,\"Version\":13},{\"Id\":71,\"AppName\":\"common-service-test\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-06-21 21:50:24 +0800 CST\",\"UpdateTime\":\"2021-06-21 21:50:24 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":63,\"Version\":11},{\"Id\":70,\"AppName\":\"config-sample\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-06-21 15:33:39 +0800 CST\",\"UpdateTime\":\"2021-06-21 15:33:39 +0800 CST\",\"CreateUser\":\"\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":30,\"Version\":10},{\"Id\":68,\"AppName\":\"route-service1\",\"AppDesc\":\"\",\"ActiveStatus\":1,\"CreateTime\":\"2021-06-09 16:00:38 +0800 CST\",\"UpdateTime\":\"2021-06-09 16:00:38 +0800 CST\",\"CreateUser\":\"admin\",\"UpdateUser\":\"\",\"MachineNum\":0,\"ConfigNum\":1,\"Version\":8}]}\n"
 
 	rp := PageRsp{}
-	_ = util.DataToObject(rel, &rp)
+	_, _ = util.DataToObject(rel, &rp)
 
 	t.Log(util.ToJsonString(rp))
 
@@ -934,7 +934,7 @@ func BenchmarkSprintfPress(b *testing.B) {
 	//b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		var entity ValueInnerEntity1
-		_ = util.DataToObject(jsonStr, &entity)
+		_, _ = util.DataToObject(jsonStr, &entity)
 
 		resultMap := make(map[string]any)
 		_ = json.Unmarshal([]byte(jsonStr), &resultMap)
