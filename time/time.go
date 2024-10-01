@@ -393,3 +393,14 @@ func MillisecondToTime(milliseconds int64) t0.Time {
 func GetMiddleTime(t1, t2 t0.Time) t0.Time {
 	return t1.Add(t2.Sub(t1) / 2)
 }
+
+// 2006-01-02 15:04:05距离1970-01-01 08:00:00的秒数 网上工具可查出
+const baseOriginSecond = 1136185445
+
+// 2006-01-02 距离 1900-01-01的天数
+const baseDiffDay = 38719
+
+// ExcelDateToTime 将 Excel 日期序列号（示例：45342）转换为 Go 的 time.Time 对象
+func ExcelDateToTime(excelDate int) string {
+	return t0.Unix(int64(baseOriginSecond+(excelDate-baseDiffDay)*24*3600), 0).Format(FmtCnYMd)
+}
