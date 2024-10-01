@@ -357,6 +357,18 @@ func (receiver *GoleMap) Put(key string, value interface{}) *GoleMap {
 	return receiver
 }
 
+func (receiver *GoleMap) PutAll(otherMap *GoleMap) *GoleMap {
+	if receiver == nil || otherMap == nil {
+		return nil
+	}
+
+	for _, key := range otherMap.keys {
+		val, _ := receiver.Get(key)
+		receiver.Put(key, val)
+	}
+	return receiver
+}
+
 func (receiver *GoleMap) Contain(key string) bool {
 	if receiver == nil {
 		return false
