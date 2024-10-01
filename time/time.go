@@ -401,6 +401,6 @@ const baseOriginSecond = 1136185445
 const baseDiffDay = 38719
 
 // ExcelDateToTime 将 Excel 日期序列号（示例：45342）转换为 Go 的 time.Time 对象
-func ExcelDateToTime(excelDate int) string {
-	return t0.Unix(int64(baseOriginSecond+(excelDate-baseDiffDay)*24*3600), 0).Format(FmtCnYMd)
+func ExcelDateToTime(excelDate int) t0.Time {
+	return t0.Unix(int64(baseOriginSecond+(excelDate-baseDiffDay)*24*3600), 0)
 }
