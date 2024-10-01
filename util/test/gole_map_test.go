@@ -12,7 +12,7 @@ import (
 )
 
 func TestPutGet(t *testing.T) {
-	dataMap := util.NewNeoMap()
+	dataMap := util.NewGoleMap()
 	dataMap.Put("a", 12)
 
 	d, _ := dataMap.GetInt("a")
@@ -31,7 +31,7 @@ type PairTem struct {
 //}
 
 func TestSort1(t *testing.T) {
-	dataMap := util.NewNeoMap()
+	dataMap := util.NewGoleMap()
 	dataMap.SetSort(true)
 	dataMap.Put("a", 12)
 	dataMap.Put("b", 13)
@@ -56,7 +56,7 @@ func TestSort1(t *testing.T) {
 }
 
 func TestSort2(t *testing.T) {
-	dataMap := util.NewNeoMap()
+	dataMap := util.NewGoleMap()
 	dataMap.Put("a", 12)
 	dataMap.Put("b", 13)
 	dataMap.Put("c", 124)
@@ -85,7 +85,7 @@ func TestSort2(t *testing.T) {
 }
 
 func TestSort3(t *testing.T) {
-	dataMap := util.NewNeoMap()
+	dataMap := util.NewGoleMap()
 	dataMap.SetSort(true)
 	dataMap.Put("a", 12)
 	dataMap.Put("b", 13)
@@ -117,7 +117,7 @@ func TestFromEntity1(t *testing.T) {
 		Address: "浙江",
 	}
 
-	dataMap := util.FromEntityToNeoMap(entity1)
+	dataMap := util.FromEntityToGoleMap(entity1)
 	fmt.Println(dataMap.ToString())
 
 	for index, key := range dataMap.Keys() {
@@ -153,7 +153,7 @@ func TestFromEntity2(t *testing.T) {
 		Address: "浙江",
 	}
 
-	dataMap := util.FromEntityToNeoMap(entity2)
+	dataMap := util.FromEntityToGoleMap(entity2)
 
 	for index, key := range dataMap.Keys() {
 		switch index {
@@ -187,7 +187,7 @@ func TestFromEntity3(t *testing.T) {
 		Age:     22,
 		Address: "浙江",
 	}
-	dataMap := util.FromEntityToNeoMap(entity3)
+	dataMap := util.FromEntityToGoleMap(entity3)
 
 	for index, key := range dataMap.Keys() {
 		switch index {
@@ -209,14 +209,14 @@ func TestFromEntity3(t *testing.T) {
 
 func TestFromEntity4(t *testing.T) {
 	current := time.Now()
-	baseMap := util.NeoMapOfSort(
+	baseMap := util.GoleMapOfSort(
 		"Ts", current,
 		"Name", "test",
 		"Age", 22,
 		"Address", "浙江",
 	)
 
-	dataMap := util.FromEntityToNeoMap(baseMap)
+	dataMap := util.FromEntityToGoleMap(baseMap)
 
 	for index, key := range dataMap.Keys() {
 		switch index {
@@ -257,7 +257,7 @@ func TestFromEntity5(t *testing.T) {
 			Address: "浙江",
 		},
 	}
-	dataMap := util.FromEntityToNeoMap(entity3)
+	dataMap := util.FromEntityToGoleMap(entity3)
 	fmt.Println(dataMap.ToJsonOfSort())
 }
 
@@ -289,7 +289,7 @@ func TestFromEntity6(t *testing.T) {
 			Address: "浙江",
 		}},
 	}
-	dataMap := util.FromEntityToNeoMap(entity3)
+	dataMap := util.FromEntityToGoleMap(entity3)
 	fmt.Println(dataMap.ToJsonOfSort())
 }
 
@@ -300,7 +300,7 @@ func TestFromMap(t *testing.T) {
 		"c": 42,
 		"d": 57,
 	}
-	OrmMap := util.FromMapToNeoMap(dataMap)
+	OrmMap := util.FromMapToGoleMap(dataMap)
 	if OrmMap == nil {
 		assert.Error(t, errors.New("转换失败"))
 		return
@@ -319,7 +319,7 @@ func TestFromMap(t *testing.T) {
 
 func TestFromJson1(t *testing.T) {
 	jsonData := "{\"a\":12,\"b\":32,\"d\":{\"e\":12}}"
-	OrmMap, _ := util.FromJsonToNeoMap(jsonData)
+	OrmMap, _ := util.FromJsonToGoleMap(jsonData)
 	d, _ := OrmMap.GetInt("a")
 	assert.Equal(t, 12, d)
 	d, _ = OrmMap.GetInt("b")
@@ -340,7 +340,7 @@ func TestFrom1(t *testing.T) {
 		Age:     22,
 		Address: "浙江",
 	}
-	dataMap, _ := util.FromToNeoMap(entity3)
+	dataMap, _ := util.FromToGoleMap(entity3)
 	val, _ := dataMap.GetString("name")
 	assert.Equal(t, val, "test")
 
@@ -350,26 +350,26 @@ func TestFrom1(t *testing.T) {
 		"c":    42,
 		"d":    57,
 	}
-	dataMap2, _ := util.FromToNeoMap(map1)
+	dataMap2, _ := util.FromToGoleMap(map1)
 	val1, _ := dataMap2.GetString("name")
 	assert.Equal(t, "zhou", val1)
 
 	jsonData := "{\"a\":12,\"b\":32,\"d\":{\"e\":12}}"
-	dataMap3, _ := util.FromToNeoMap(jsonData)
+	dataMap3, _ := util.FromToGoleMap(jsonData)
 	val2, _ := dataMap3.GetInt("a")
 	assert.Equal(t, 12, val2)
 }
 
 func TestToJson(t *testing.T) {
 	jsonData := "{\"a\":12,\"b\":32,\"d\":{\"e\":12}}"
-	OrmMap, _ := util.FromJsonToNeoMap(jsonData)
+	OrmMap, _ := util.FromJsonToGoleMap(jsonData)
 	jsonContent := OrmMap.ToJson()
 	assert.Equal(t, jsonData, jsonContent)
 }
 
 func TestAsDeepMap(t *testing.T) {
 	jsonData := "{\"a\":12,\"b\":{\"c\":{\"d\":32}},\"array\":{\"single\":[{\"name\":\"zhou\"},{\"name\":\"song\"}]}}"
-	OrmMap, _ := util.FromJsonToNeoMap(jsonData)
+	OrmMap, _ := util.FromJsonToGoleMap(jsonData)
 	deepMap := OrmMap.AsDeepMap()
 
 	d, _ := deepMap.GetInt("a")
@@ -383,7 +383,7 @@ func TestAsDeepMap(t *testing.T) {
 }
 
 func TestClone1(t *testing.T) {
-	dataMap := util.NewSortNeoMap()
+	dataMap := util.NewSortGoleMap()
 	dataMap.Put("a", 12)
 	dataMap.Put("b", 13)
 	dataMap.Put("c", 124)
@@ -421,7 +421,7 @@ func TestToEntity1(t *testing.T) {
 		Age:     22,
 		Address: "浙江",
 	}
-	entityMap := util.FromEntityToNeoMap(entity1)
+	entityMap := util.FromEntityToGoleMap(entity1)
 
 	entity1Expect := DemoEntity{}
 	err := entityMap.ToEntity(&entity1Expect)
@@ -446,7 +446,7 @@ func TestToEntity2(t *testing.T) {
 		Age:     22,
 		Address: "浙江",
 	}
-	entityMap := util.FromEntityToNeoMap(entity1)
+	entityMap := util.FromEntityToGoleMap(entity1)
 
 	entity1Expect := DemoEntity{}
 	err := entityMap.ToEntity(&entity1Expect)
@@ -472,7 +472,7 @@ func TestToEntity3(t *testing.T) {
 		Age:     22,
 		Address: "浙江",
 	}
-	entityMap := util.FromEntityToNeoMap(entity1)
+	entityMap := util.FromEntityToGoleMap(entity1)
 
 	entity1Expect := DemoEntity{}
 	err := entityMap.ToEntity(&entity1Expect)
@@ -485,7 +485,7 @@ func TestToEntity3(t *testing.T) {
 }
 
 func TestToString1(t *testing.T) {
-	dataMap := util.NewNeoMap()
+	dataMap := util.NewGoleMap()
 	dataMap.Put("a", 12)
 	dataMap.Put("b", 13)
 	dataMap.Put("c", 124)
@@ -494,7 +494,7 @@ func TestToString1(t *testing.T) {
 }
 
 func TestToString2(t *testing.T) {
-	dataMap := util.NewSortNeoMap()
+	dataMap := util.NewSortGoleMap()
 	dataMap.Put("a", 12)
 	dataMap.Put("b", 13)
 	dataMap.Put("c", 124)
@@ -503,35 +503,35 @@ func TestToString2(t *testing.T) {
 }
 
 func TestOf1(t *testing.T) {
-	pMap := util.NeoMapOf("a", 1, "b", 12)
+	pMap := util.GoleMapOf("a", 1, "b", 12)
 	v, _ := pMap.GetInt("a")
 	assert.Equal(t, 1, v)
 }
 
 func TestOf2(t *testing.T) {
-	pMap := util.NeoMapOf("a", 1, "b", 12, "k3", 13, "k4", 14)
+	pMap := util.GoleMapOf("a", 1, "b", 12, "k3", 13, "k4", 14)
 	v, _ := pMap.GetInt("a")
 	assert.Equal(t, 1, v)
 }
 
-func TestGetNeoMap(t *testing.T) {
-	pMap := util.NeoMapOf("a", util.NeoMapOf("aa", 12))
-	v, _ := pMap.GetNeoMap("a")
+func TestGetGoleMap(t *testing.T) {
+	pMap := util.GoleMapOf("a", util.GoleMapOf("aa", 12))
+	v, _ := pMap.GetGoleMap("a")
 
 	d, _ := v.GetString("aa")
 	assert.Equal(t, d, "12")
 }
 
 func TestToJsonOfSort1(t *testing.T) {
-	baseMap := util.NeoMapOfSort("a", 12, "b", 2, "c", 3)
+	baseMap := util.GoleMapOfSort("a", 12, "b", 2, "c", 3)
 	assert.Equal(t, "{\"a\":12,\"b\":2,\"c\":3}", baseMap.ToJsonOfSort())
 
-	baseMap = util.NeoMapOfSort("c", 12, "b", 2, "e", 3)
+	baseMap = util.GoleMapOfSort("c", 12, "b", 2, "e", 3)
 	assert.Equal(t, "{\"c\":12,\"b\":2,\"e\":3}", baseMap.ToJsonOfSort())
 
 	timeData, _ := goleTime.ParseTime("2024-08-28")
 
-	baseMap = util.NeoMapOfSort("c", true, "b", false, "e", "test", "f", timeData, "g")
+	baseMap = util.GoleMapOfSort("c", true, "b", false, "e", "test", "f", timeData, "g")
 	assert.Equal(t, "{\"c\":true,\"b\":false,\"e\":\"test\",\"f\":\"2024-08-28 00:00:00 +0800 CST\"}", baseMap.ToJsonOfSort())
 }
 
@@ -549,10 +549,10 @@ func TestToJsonOfSort2(t *testing.T) {
 		Man:  true,
 		Addr: "hang",
 	}
-	baseMap := util.NeoMapOfSort("c", 12, "b", entity, "e", 3)
+	baseMap := util.GoleMapOfSort("c", 12, "b", entity, "e", 3)
 	assert.Equal(t, "{\"c\":12,\"b\":{\"name\":\"test\",\"age\":22,\"man\":true,\"addr\":\"hang\"},\"e\":3}", baseMap.ToJsonOfSort())
 
-	baseMap = util.NeoMapOfSort("c", 12, "b", &entity, "e", 3)
+	baseMap = util.GoleMapOfSort("c", 12, "b", &entity, "e", 3)
 	assert.Equal(t, "{\"c\":12,\"b\":{\"name\":\"test\",\"age\":22,\"man\":true,\"addr\":\"hang\"},\"e\":3}", baseMap.ToJsonOfSort())
 }
 func pre(port int) string {
@@ -561,29 +561,29 @@ func pre(port int) string {
 
 func TestD(t *testing.T) {
 	port := config.GetValueIntDefault("base.server.port", 8080)
-	baseMap := util.NeoMapOfSort(
+	baseMap := util.GoleMapOfSort(
 		"帮助", "curl http://localhost:"+pre(port)+"/debug/help",
-		"日志", util.NeoMapOfSort(
+		"日志", util.GoleMapOfSort(
 			"日志分组列表", "curl http://localhost:"+pre(port)+"/logger/list/{name}",
 			"动态修改日志", "curl -X PUT http://localhost:"+pre(port)+"/config/update -d '{\"key\":\"base.logger.level\", \"value\":\"debug\"}'",
 		),
-		"http接口出入参", util.NeoMapOfSort(
+		"http接口出入参", util.GoleMapOfSort(
 			"指定url打印请求", "curl -X PUT http://localhost:"+pre(port)+"/config/update -d '{\"key\":\"base.server.request.print.include-uri[0]\", \"value\":\"/api/xx/xxx\"}'",
 			"指定url不打印请求", "curl -X PUT http://localhost:"+pre(port)+"/config/update -d '{\"key\":\"base.server.request.print.exclude-uri[0]\", \"value\":\"/api/xx/xxx\"}'",
 			"指定url打印请求和响应", "curl -X PUT http://localhost:"+pre(port)+"/config/update -d '{\"key\":\"base.server.response.print.include-uri[0]\", \"value\":\"/api/xx/xxx\"}'",
 			"指定url不打印请求和响应", "curl -X PUT http://localhost:"+pre(port)+"/config/update -d '{\"key\":\"base.server.response.print.exclude-uri[0]\", \"value\":\"/api/xx/xxx\"}'",
 		),
-		"bean管理", util.NeoMapOfSort(
+		"bean管理", util.GoleMapOfSort(
 			"获取注册的所有bean", "curl http://localhost:"+pre(port)+"/bean/name/all",
 			"查询注册的bean", "curl http://localhost:"+pre(port)+"/bean/name/list/{name}",
 			"查询bean的属性值", "curl -X POST http://localhost:"+pre(port)+"/bean/field/get' -d '{\"bean\": \"xx\", \"field\":\"xxx\"}'",
 			"修改bean的属性值", "curl -X POST http://localhost:"+pre(port)+"/bean/field/set' -d '{\"bean\": \"xx\", \"field\": \"xxx\", \"value\": \"xxx\"}'",
 			"调用bean的函数", "curl -X POST http://localhost:"+pre(port)+"/bean/fun/call' -d '{\"bean\": \"xx\", \"fun\": \"xxx\", \"parameter\": {\"p1\":\"xx\", \"p2\": \"xxx\"}}'",
 		),
-		"pprof", util.NeoMapOfSort(
+		"pprof", util.GoleMapOfSort(
 			"动态启用pprof", "curl -X PUT http://localhost:"+pre(port)+"/config/update -d '{\"key\":\"base.server.gin.pprof.enable\", \"value\":\"true\"}'",
 		),
-		"配置处理", util.NeoMapOfSort(
+		"配置处理", util.GoleMapOfSort(
 			"服务所有配置", "curl http://localhost:"+pre(port)+"/config/values",
 			"服务所有配置(yaml结构)", "curl http://localhost:"+pre(port)+"/config/values/yaml",
 			"服务某个配置", "curl http://localhost:"+pre(port)+"/config/value/{key}",

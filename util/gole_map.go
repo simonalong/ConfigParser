@@ -19,36 +19,36 @@ import (
  * 4. 提供与实体的转化功能
  */
 
-type NeoMap struct {
+type GoleMap struct {
 	innerMap cmap.ConcurrentMap
 	sort     bool
 	keys     []string
 }
 
-func NewNeoMap() *NeoMap {
-	return &NeoMap{
+func NewGoleMap() *GoleMap {
+	return &GoleMap{
 		innerMap: cmap.New(),
 		sort:     false,
 		keys:     make([]string, 0),
 	}
 }
 
-func NewSortNeoMap() *NeoMap {
-	return &NeoMap{
+func NewSortGoleMap() *GoleMap {
+	return &GoleMap{
 		innerMap: cmap.New(),
 		sort:     true,
 		keys:     make([]string, 0),
 	}
 }
 
-// NeoMapOf 支持：k-v-k-v结构
+// GoleMapOf 支持：k-v-k-v结构
 // 默认无序，如果想要有序，请使用OfSort()
-func NeoMapOf(parameters ...any) *NeoMap {
+func GoleMapOf(parameters ...any) *GoleMap {
 	if parameters == nil || len(parameters) == 0 {
-		return NewNeoMap()
+		return NewGoleMap()
 	}
 
-	pNeoMap := NewNeoMap()
+	pGoleMap := NewGoleMap()
 	for index := 0; index < len(parameters); index++ {
 		data := parameters[index]
 		if reflect.TypeOf(data).Kind() == reflect.String {
@@ -58,19 +58,19 @@ func NeoMapOf(parameters ...any) *NeoMap {
 				value = parameters[index+1]
 			}
 
-			pNeoMap.Put(key, value)
+			pGoleMap.Put(key, value)
 			index++
 		}
 	}
-	return pNeoMap
+	return pGoleMap
 }
 
-func NeoMapOfSort(parameters ...any) *NeoMap {
+func GoleMapOfSort(parameters ...any) *GoleMap {
 	if parameters == nil || len(parameters) == 0 {
-		return NewSortNeoMap()
+		return NewSortGoleMap()
 	}
 
-	pNeoMap := NewSortNeoMap()
+	pGoleMap := NewSortGoleMap()
 	for index := 0; index < len(parameters); index++ {
 		data := parameters[index]
 		if reflect.TypeOf(data).Kind() == reflect.String {
@@ -80,41 +80,41 @@ func NeoMapOfSort(parameters ...any) *NeoMap {
 				value = parameters[index+1]
 			}
 
-			pNeoMap.Put(key, value)
+			pGoleMap.Put(key, value)
 			index++
 		}
 	}
-	return pNeoMap
+	return pGoleMap
 }
 
-func FromToNeoMap(entity interface{}) (*NeoMap, error) {
+func FromToGoleMap(entity interface{}) (*GoleMap, error) {
 	if entity == nil {
 		return nil, nil
 	}
 	entityType := reflect.TypeOf(entity)
 	if entityType.Kind() == reflect.Map {
-		return FromMapToNeoMap(entity.(map[string]interface{})), nil
+		return FromMapToGoleMap(entity.(map[string]interface{})), nil
 	} else if entityType.Kind() == reflect.Struct {
-		return FromEntityToNeoMap(entity), nil
+		return FromEntityToGoleMap(entity), nil
 	} else if entityType.Kind() == reflect.String {
-		return FromJsonToNeoMap(entity.(string))
+		return FromJsonToGoleMap(entity.(string))
 	} else {
 		return nil, errors.New(fmt.Sprintf("暂时不支持除了map、struct和string之外的其他类型：%v", entityType.Kind().String()))
 	}
 }
 
-// FromEntityToNeoMap 从实体转换为map，默认转换为有序map
-func FromEntityToNeoMap(entity interface{}) *NeoMap {
+// FromEntityToGoleMap 从实体转换为map，默认转换为有序map
+func FromEntityToGoleMap(entity interface{}) *GoleMap {
 	if entity == nil {
-		return NewNeoMap()
+		return NewGoleMap()
 	}
 
 	valType := reflect.TypeOf(entity)
 	if valType.Kind() == reflect.Ptr {
 		valType = valType.Elem()
 	}
-	if valType == reflect.TypeOf(NeoMap{}) {
-		return entity.(*NeoMap)
+	if valType == reflect.TypeOf(GoleMap{}) {
+		return entity.(*GoleMap)
 	}
 
 	objType := reflect.TypeOf(entity)
@@ -123,7 +123,7 @@ func FromEntityToNeoMap(entity interface{}) *NeoMap {
 		return nil
 	}
 
-	entityMap := NewSortNeoMap()
+	entityMap := NewSortGoleMap()
 
 	objValue := reflect.ValueOf(entity)
 	for fieldIndex, num := 0, objType.NumField(); fieldIndex < num; fieldIndex++ {
@@ -140,21 +140,21 @@ func FromEntityToNeoMap(entity interface{}) *NeoMap {
 	return entityMap
 }
 
-// FromMapToNeoMap 从map转换为neoMap，默认转换为有序map
-func FromMapToNeoMap(dataMap map[string]interface{}) *NeoMap {
+// FromMapToGoleMap 从map转换为neoMap，默认转换为有序map
+func FromMapToGoleMap(dataMap map[string]interface{}) *GoleMap {
 	if dataMap == nil || len(dataMap) == 0 {
-		return NewNeoMap()
+		return NewGoleMap()
 	}
-	resultMap := NewSortNeoMap()
+	resultMap := NewSortGoleMap()
 	for key, val := range dataMap {
 		resultMap.Put(key, val)
 	}
 	return resultMap
 }
 
-func FromJsonToNeoMap(jsonOfContent string) (*NeoMap, error) {
+func FromJsonToGoleMap(jsonOfContent string) (*GoleMap, error) {
 	if jsonOfContent == "" {
-		return NewNeoMap(), nil
+		return NewGoleMap(), nil
 	}
 	resultMap := make(map[string]interface{})
 	err := json.Unmarshal([]byte(jsonOfContent), &resultMap)
@@ -162,10 +162,10 @@ func FromJsonToNeoMap(jsonOfContent string) (*NeoMap, error) {
 		return nil, err
 	}
 
-	return FromMapToNeoMap(resultMap), nil
+	return FromMapToGoleMap(resultMap), nil
 }
 
-func (receiver *NeoMap) ToEntity(pEntity interface{}) error {
+func (receiver *GoleMap) ToEntity(pEntity interface{}) error {
 	if receiver == nil {
 		return nil
 	}
@@ -176,14 +176,14 @@ func (receiver *NeoMap) ToEntity(pEntity interface{}) error {
 	return MapToObject(receiver.innerMap.Items(), pEntity)
 }
 
-func (receiver *NeoMap) ToMap() map[string]interface{} {
+func (receiver *GoleMap) ToMap() map[string]interface{} {
 	if receiver == nil {
 		return nil
 	}
 	return receiver.innerMap.Items()
 }
 
-func (receiver *NeoMap) ToJson() string {
+func (receiver *GoleMap) ToJson() string {
 	if receiver == nil {
 		return "{}"
 	}
@@ -191,7 +191,7 @@ func (receiver *NeoMap) ToJson() string {
 }
 
 // ToJsonOfSort 输出key有序的json
-func (receiver *NeoMap) ToJsonOfSort() string {
+func (receiver *GoleMap) ToJsonOfSort() string {
 	if receiver == nil || receiver.IsEmpty() {
 		return "{}"
 	}
@@ -220,13 +220,13 @@ func (receiver *NeoMap) ToJsonOfSort() string {
 			kvs = append(kvs, fmt.Sprintf("\"%v\":%v", key, ToJsonString(valValue.Interface())))
 		} else {
 			var valJson string
-			if valType == reflect.TypeOf(NeoMap{}) {
-				value := val.(*NeoMap)
+			if valType == reflect.TypeOf(GoleMap{}) {
+				value := val.(*GoleMap)
 				valJson = value.ToJsonOfSort()
 			} else if valType.Kind() == reflect.Map {
 				valJson = ToJsonString(valValue.Interface())
 			} else {
-				valJson = FromEntityToNeoMap(valValue.Interface()).ToJsonOfSort()
+				valJson = FromEntityToGoleMap(valValue.Interface()).ToJsonOfSort()
 			}
 			if valJson == "{}" {
 				continue
@@ -240,7 +240,7 @@ func (receiver *NeoMap) ToJsonOfSort() string {
 	return jsonResult
 }
 
-func (receiver *NeoMap) ToString() string {
+func (receiver *GoleMap) ToString() string {
 	if receiver == nil {
 		return ""
 	}
@@ -252,7 +252,7 @@ func (receiver *NeoMap) ToString() string {
 	return "[" + strings.Join(keyValue, ",") + "]"
 }
 
-func (receiver *NeoMap) Keys() []string {
+func (receiver *GoleMap) Keys() []string {
 	if receiver == nil {
 		return nil
 	}
@@ -267,7 +267,7 @@ func (receiver *NeoMap) Keys() []string {
 // 注意：
 //  1. 如果从无序变为有序，且之前已经有一些数据，则之前的数据顺序至此固定，后续的顺序就按照添加的顺序固定
 //  2. 如果从有序变为无序，且之前已经有一些数据，则顺序就完全乱掉了
-func (receiver *NeoMap) SetSort(sort bool) *NeoMap {
+func (receiver *GoleMap) SetSort(sort bool) *GoleMap {
 	if receiver == nil {
 		return receiver
 	}
@@ -280,15 +280,15 @@ func (receiver *NeoMap) SetSort(sort bool) *NeoMap {
 	return receiver
 }
 
-func (receiver *NeoMap) IsEmpty() bool {
+func (receiver *GoleMap) IsEmpty() bool {
 	if receiver == nil {
 		return true
 	}
 	return len(receiver.innerMap.Keys()) == 0
 }
 
-// NeoMapAllIsEmpty 所有数据都为空，则返回true
-func NeoMapAllIsEmpty(dataMaps []*NeoMap) bool {
+// GoleMapAllIsEmpty 所有数据都为空，则返回true
+func GoleMapAllIsEmpty(dataMaps []*GoleMap) bool {
 	if dataMaps == nil {
 		return true
 	}
@@ -301,18 +301,18 @@ func NeoMapAllIsEmpty(dataMaps []*NeoMap) bool {
 	return true
 }
 
-func (receiver *NeoMap) IsUnEmpty() bool {
+func (receiver *GoleMap) IsUnEmpty() bool {
 	if receiver == nil {
 		return false
 	}
 	return len(receiver.innerMap.Keys()) != 0
 }
 
-func (receiver *NeoMap) Clone() *NeoMap {
+func (receiver *GoleMap) Clone() *GoleMap {
 	if receiver == nil {
 		return nil
 	}
-	cloneMap := &NeoMap{
+	cloneMap := &GoleMap{
 		innerMap: cmap.New(),
 		sort:     receiver.sort,
 		keys:     make([]string, 0),
@@ -325,14 +325,14 @@ func (receiver *NeoMap) Clone() *NeoMap {
 }
 
 // AsDeepMap 将对象转换为可以使用test.name.single.age这样访问的map，不过这个neoMap不建议使用，建议只作为读取用
-func (receiver *NeoMap) AsDeepMap() *NeoMap {
+func (receiver *GoleMap) AsDeepMap() *GoleMap {
 	if receiver == nil {
 		return nil
 	}
 	mapFromProperties, _ := MapToProperties(receiver.ToMap())
 	propertiesFromMap, _ := PropertiesToMap(mapFromProperties)
 
-	deepMap := &NeoMap{
+	deepMap := &GoleMap{
 		innerMap: cmap.New(),
 		sort:     false,
 		keys:     make([]string, 0),
@@ -343,7 +343,7 @@ func (receiver *NeoMap) AsDeepMap() *NeoMap {
 	return deepMap
 }
 
-func (receiver *NeoMap) Put(key string, value interface{}) *NeoMap {
+func (receiver *GoleMap) Put(key string, value interface{}) *GoleMap {
 	if receiver == nil {
 		return nil
 	}
@@ -357,7 +357,7 @@ func (receiver *NeoMap) Put(key string, value interface{}) *NeoMap {
 	return receiver
 }
 
-func (receiver *NeoMap) Contain(key string) bool {
+func (receiver *GoleMap) Contain(key string) bool {
 	if receiver == nil {
 		return false
 	}
@@ -368,7 +368,7 @@ func (receiver *NeoMap) Contain(key string) bool {
 	return exit
 }
 
-func (receiver *NeoMap) Get(key string) (interface{}, bool) {
+func (receiver *GoleMap) Get(key string) (interface{}, bool) {
 	if receiver == nil {
 		return nil, false
 	}
@@ -378,7 +378,7 @@ func (receiver *NeoMap) Get(key string) (interface{}, bool) {
 	return receiver.innerMap.Get(key)
 }
 
-func (receiver *NeoMap) GetNeoMap(key string) (*NeoMap, bool) {
+func (receiver *GoleMap) GetGoleMap(key string) (*GoleMap, bool) {
 	if receiver == nil {
 		return nil, false
 	}
@@ -389,10 +389,10 @@ func (receiver *NeoMap) GetNeoMap(key string) (*NeoMap, bool) {
 	if !exist {
 		return nil, false
 	}
-	return val.(*NeoMap), true
+	return val.(*GoleMap), true
 }
 
-func (receiver *NeoMap) GetInt(key string) (int, bool) {
+func (receiver *GoleMap) GetInt(key string) (int, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -407,7 +407,7 @@ func (receiver *NeoMap) GetInt(key string) (int, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetInt8(key string) (int8, bool) {
+func (receiver *GoleMap) GetInt8(key string) (int8, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -422,7 +422,7 @@ func (receiver *NeoMap) GetInt8(key string) (int8, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetInt16(key string) (int16, bool) {
+func (receiver *GoleMap) GetInt16(key string) (int16, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -437,7 +437,7 @@ func (receiver *NeoMap) GetInt16(key string) (int16, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetInt32(key string) (int32, bool) {
+func (receiver *GoleMap) GetInt32(key string) (int32, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -452,7 +452,7 @@ func (receiver *NeoMap) GetInt32(key string) (int32, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetInt64(key string) (int64, bool) {
+func (receiver *GoleMap) GetInt64(key string) (int64, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -467,7 +467,7 @@ func (receiver *NeoMap) GetInt64(key string) (int64, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetUInt(key string) (uint, bool) {
+func (receiver *GoleMap) GetUInt(key string) (uint, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -482,7 +482,7 @@ func (receiver *NeoMap) GetUInt(key string) (uint, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetUInt8(key string) (uint8, bool) {
+func (receiver *GoleMap) GetUInt8(key string) (uint8, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -497,7 +497,7 @@ func (receiver *NeoMap) GetUInt8(key string) (uint8, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetUInt16(key string) (uint16, bool) {
+func (receiver *GoleMap) GetUInt16(key string) (uint16, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -512,7 +512,7 @@ func (receiver *NeoMap) GetUInt16(key string) (uint16, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetUInt32(key string) (uint32, bool) {
+func (receiver *GoleMap) GetUInt32(key string) (uint32, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -527,7 +527,7 @@ func (receiver *NeoMap) GetUInt32(key string) (uint32, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetUInt64(key string) (uint64, bool) {
+func (receiver *GoleMap) GetUInt64(key string) (uint64, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -542,7 +542,7 @@ func (receiver *NeoMap) GetUInt64(key string) (uint64, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetFloat32(key string) (float32, bool) {
+func (receiver *GoleMap) GetFloat32(key string) (float32, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -557,7 +557,7 @@ func (receiver *NeoMap) GetFloat32(key string) (float32, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetFloat64(key string) (float64, bool) {
+func (receiver *GoleMap) GetFloat64(key string) (float64, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -572,7 +572,7 @@ func (receiver *NeoMap) GetFloat64(key string) (float64, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetBool(key string) (bool, bool) {
+func (receiver *GoleMap) GetBool(key string) (bool, bool) {
 	if receiver == nil {
 		return false, false
 	}
@@ -587,7 +587,7 @@ func (receiver *NeoMap) GetBool(key string) (bool, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetComplex64(key string) (complex64, bool) {
+func (receiver *GoleMap) GetComplex64(key string) (complex64, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -602,7 +602,7 @@ func (receiver *NeoMap) GetComplex64(key string) (complex64, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetComplex128(key string) (complex128, bool) {
+func (receiver *GoleMap) GetComplex128(key string) (complex128, bool) {
 	if receiver == nil {
 		return 0, false
 	}
@@ -617,7 +617,7 @@ func (receiver *NeoMap) GetComplex128(key string) (complex128, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetString(key string) (string, bool) {
+func (receiver *GoleMap) GetString(key string) (string, bool) {
 	if receiver == nil {
 		return "", false
 	}
@@ -636,7 +636,7 @@ func (receiver *NeoMap) GetString(key string) (string, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetTime(key string) (time.Time, bool) {
+func (receiver *GoleMap) GetTime(key string) (time.Time, bool) {
 	if receiver == nil {
 		return time.Time{}, false
 	}
@@ -651,7 +651,7 @@ func (receiver *NeoMap) GetTime(key string) (time.Time, bool) {
 	}
 }
 
-func (receiver *NeoMap) GetBytes(key string) ([]byte, bool) {
+func (receiver *GoleMap) GetBytes(key string) ([]byte, bool) {
 	if receiver == nil {
 		return nil, false
 	}
@@ -666,7 +666,7 @@ func (receiver *NeoMap) GetBytes(key string) ([]byte, bool) {
 	}
 }
 
-func (receiver *NeoMap) Remove(key string) {
+func (receiver *GoleMap) Remove(key string) {
 	if receiver == nil {
 		return
 	}
@@ -676,7 +676,7 @@ func (receiver *NeoMap) Remove(key string) {
 		receiver.keys = append(receiver.keys[:id], receiver.keys[id+1:]...)
 	}
 }
-func (receiver *NeoMap) RemoveAll() {
+func (receiver *GoleMap) RemoveAll() {
 	if receiver == nil {
 		return
 	}
@@ -685,7 +685,7 @@ func (receiver *NeoMap) RemoveAll() {
 		receiver.keys = make([]string, 0)
 	}
 }
-func (receiver *NeoMap) Clear() {
+func (receiver *GoleMap) Clear() {
 	if receiver == nil {
 		return
 	}
@@ -694,7 +694,7 @@ func (receiver *NeoMap) Clear() {
 		receiver.keys = make([]string, 0)
 	}
 }
-func (receiver *NeoMap) Size() int {
+func (receiver *GoleMap) Size() int {
 	if receiver == nil {
 		return 0
 	}
